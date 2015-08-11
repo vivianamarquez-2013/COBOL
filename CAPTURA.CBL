@@ -1,0 +1,65 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CAPTURA.
+      *--------------------------
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT AMIGOS
+             ASSIGN TO RANDOM "AMIGOS.DAT"
+             ORGANIZATION IS INDEXED
+             ACCESS MODE IS DYNAMIC
+             RECORD KEY IS CODIGO.
+      *---------------------------
+       DATA DIVISION.
+       FILE SECTION.
+       FD AMIGOS.
+       01 REG-AMIGOS.
+         05 CODIGO PIC 9(5).
+         05 NOMBRE PIC X(30).
+         05 TELEFONO PIC X(20).
+
+       WORKING-STORAGE SECTION.
+       01 VARIABLES.
+         05 SW PIC 9.
+         05 TECLA PIC X.
+      *----------------------------
+       PROCEDURE DIVISION.
+       PRINCIPAL.
+           PERFORM ABRIR-ARCHIVO.
+           PERFORM PROCESAR UNTIL SW = 1.
+           PERFORM CERRAR-ARCHIVO.
+           STOP RUN.
+
+       ABRIR-ARCHIVO.
+           OPEN I-O AMIGOS.
+
+       CERRAR-ARCHIVO.
+           CLOSE AMIGOS.
+
+       PROCESAR.
+           PERFORM LIMPIAR-PANTALLA.
+           PERFORM CAPTURAR-DATOS.
+
+       LIMPIAR-PANTALLA.
+           DISPLAY " " LINE 1 POSITION 1 ERASE EOS.
+           DISPLAY "CODIGO..." LINE 10 POSITION 10.
+           DISPLAY "NOMBRE..." LINE 11 POSITION 10.
+           DISPLAY "TELEFONO..." LINE 12 POSITION 10.
+
+       CAPTURAR-DATOS.
+           ACCEPT CODIGO LINE 10 POSITION 30 PROMPT NO BEEP
+           ACCEPT NOMBRE LINE 11 POSITION 30 PROMPT NO BEEP
+           ACCEPT TELEFONO LINE 12 POSITION 30 PROMPT NO BEEP
+           WRITE REG-AMIGOS
+             INVALID KEY
+               DISPLAY "ERROR" LINE 23 POSITION 30
+               ACCEPT TECLA LINE 23 POSITION 78
+             NOT INVALID KEY
+               DISPLAY "GRABADO" LINE 23 POSITION 30
+               ACCEPT TECLA LINE 23 POSITION 78
+             END-WRITE
+             DISPLAY "CONTINUAR S/N" LINE 23 POSITION 30
+             ACCEPT TECLA LINE 23 POSITION 78 PROMPT
+             IF TECLA = "N" OR TECLA = "n"
+               MOVE 1 TO SW
+             END-IF.
