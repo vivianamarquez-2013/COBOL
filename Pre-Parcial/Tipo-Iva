@@ -1,0 +1,68 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TIPOIVA.
+      *-----------------------------
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+               SELECT TIPO-IVA
+                 ASSIGN TO RANDOM "TIPO-IVA.DAT"
+                 ORGANIZATION IS INDEXED
+                 ACCESS MODE IS DYNAMIC
+                 RECORD KEY IS LLAVE-PAL-TI.
+               SELECT PLANO
+                   ASSIGN TO RANDOM "TIPOIVAS.TXT"
+                   ORGANIZATION IS LINE SEQUENTIAL.
+      *------------------------------
+       DATA DIVISION.
+       FILE SECTION.
+       FD TIPO-IVA.
+       01 REG-TIPO-IVA.
+          02 LLAVE-PAL-TI.
+             03 CODIGO-TI  PIC 99.
+          02 NOMBRE-TI     PIC X(30).
+          02 VALOR-TI      PIC 99.
+       FD PLANO.
+       01 REG-PLANO PIC X(37).
+
+       WORKING-STORAGE SECTION.
+       01 REG-DETALLE.
+           05 CODIGO-TI-D PIC Z(2).
+           05 FILLER PIC X VALUE "|".
+           05 NOMBRE-TI-D PIC X(30).
+           05 FILLER PIC X VALUE "|".
+           05 VALOR-TI-D PIC X(2).
+
+       01 VARIABLES.
+           05 SW PIC 9.
+           05 TECLA PIC X.
+      *----------------------------------
+       PROCEDURE DIVISION.
+       PRINCIPAL.
+           PERFORM ABRIR-ARCHIVOS.
+           PERFORM ARRANCAR-ARCHIVO.
+           PERFORM PROCESAR UNTIL SW = 1.
+           PERFORM CERRAR-ARCHIVOS.
+           STOP RUN.
+
+       ABRIR-ARCHIVOS.
+           OPEN INPUT TIPO-IVA.
+           OPEN OUTPUT PLANO.
+
+       CERRAR-ARCHIVOS.
+           CLOSE TIPO-IVA PLANO.
+
+       ARRANCAR-ARCHIVO.
+           MOVE ZEROS TO CODIGO-TI.
+           START TIPO-IVA KEY IS >= CODIGO-TI
+           END-START.
+
+       PROCESAR.
+           READ TIPO-IVA NEXT RECORD
+             AT END
+               MOVE 1 TO SW
+             NOT AT END
+               MOVE CODIGO-TI TO CODIGO-TI-D
+               MOVE NOMBRE-TI TO NOMBRE-TI-D
+               MOVE VALOR-TI TO VALOR-TI-D
+               WRITE REG-PLANO FROM REG-DETALLE
+             END-READ.
