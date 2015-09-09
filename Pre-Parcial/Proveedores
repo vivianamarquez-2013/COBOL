@@ -1,0 +1,64 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. PROV.
+      *-----------------------------
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+               SELECT PROVEEDOR
+                 ASSIGN TO RANDOM "PROVEED.DAT"
+                 ORGANIZATION IS INDEXED
+                 ACCESS MODE IS DYNAMIC
+                 RECORD KEY IS LLAVE-PAL-PR.
+               SELECT PLANO
+                   ASSIGN TO RANDOM "PROVEED.TXT"
+                   ORGANIZATION IS LINE SEQUENTIAL.
+      *------------------------------
+       DATA DIVISION.
+       FILE SECTION.
+       FD PROVEEDOR.
+       01 REG-PROVEEDOR.
+          02 LLAVE-PAL-PR.
+             03 CODIGO-PR  PIC 99.
+          02 NOMBRE-PR     PIC X(30).
+       FD PLANO.
+       01 REG-PLANO PIC X(34).
+
+       WORKING-STORAGE SECTION.
+       01 REG-DETALLE.
+           05 CODIGO-PR-D PIC Z(2).
+           05 FILLER PIC X VALUE "|".
+           05 NOMBRE-PR-D PIC X(30).
+
+       01 VARIABLES.
+           05 SW PIC 9.
+           05 TECLA PIC X.
+      *----------------------------------
+       PROCEDURE DIVISION.
+       PRINCIPAL.
+           PERFORM ABRIR-ARCHIVOS.
+           PERFORM ARRANCAR-ARCHIVO.
+           PERFORM PROCESAR UNTIL SW = 1.
+           PERFORM CERRAR-ARCHIVOS.
+           STOP RUN.
+
+       ABRIR-ARCHIVOS.
+           OPEN INPUT PROVEEDOR.
+           OPEN OUTPUT PLANO.
+
+       CERRAR-ARCHIVOS.
+           CLOSE PROVEEDOR PLANO.
+
+       ARRANCAR-ARCHIVO.
+           MOVE ZEROS TO CODIGO-PR.
+           START PROVEEDOR KEY IS >= CODIGO-PR
+           END-START.
+
+       PROCESAR.
+           READ PROVEEDOR NEXT RECORD
+             AT END
+               MOVE 1 TO SW
+             NOT AT END
+               MOVE CODIGO-PR TO CODIGO-PR-D
+               MOVE NOMBRE-PR TO NOMBRE-PR-D
+               WRITE REG-PLANO FROM REG-DETALLE
+             END-READ.
