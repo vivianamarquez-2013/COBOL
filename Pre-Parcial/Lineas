@@ -1,0 +1,64 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. LINEAS.
+      *-----------------------------
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+               SELECT LINEAS
+                 ASSIGN TO RANDOM "LINEAS.DAT"
+                 ORGANIZATION IS INDEXED
+                 ACCESS MODE IS DYNAMIC
+                 RECORD KEY IS LLAVE-PAL-LN.
+               SELECT PLANO
+                   ASSIGN TO RANDOM "LINEAS.TXT"
+                   ORGANIZATION IS LINE SEQUENTIAL.
+      *------------------------------
+       DATA DIVISION.
+       FILE SECTION.
+       FD LINEAS.
+       01 REG-LINEAS.
+          02 LLAVE-PAL-LN.
+             03 CODIGO-LN  PIC 99.
+          02 NOMBRE-LN     PIC X(30).
+       FD PLANO.
+       01 REG-PLANO PIC X(34).
+
+       WORKING-STORAGE SECTION.
+       01 REG-DETALLE.
+           05 CODIGO-LN-D PIC Z(2).
+           05 FILLER PIC X VALUE "|".
+           05 NOMBRE-LN-D PIC X(30).
+
+       01 VARIABLES.
+           05 SW PIC 9.
+           05 TECLA PIC X.
+      *----------------------------------
+       PROCEDURE DIVISION.
+       PRINCIPAL.
+           PERFORM ABRIR-ARCHIVOS.
+           PERFORM ARRANCAR-ARCHIVO.
+           PERFORM PROCESAR UNTIL SW = 1.
+           PERFORM CERRAR-ARCHIVOS.
+           STOP RUN.
+
+       ABRIR-ARCHIVOS.
+           OPEN INPUT LINEAS.
+           OPEN OUTPUT PLANO.
+
+       CERRAR-ARCHIVOS.
+           CLOSE LINEAS PLANO.
+
+       ARRANCAR-ARCHIVO.
+           MOVE ZEROS TO CODIGO-LN.
+           START LINEAS KEY IS >= CODIGO-LN
+           END-START.
+
+       PROCESAR.
+           READ LINEAS NEXT RECORD
+             AT END
+               MOVE 1 TO SW
+             NOT AT END
+               MOVE CODIGO-LN TO CODIGO-LN-D
+               MOVE NOMBRE-LN TO NOMBRE-LN-D
+               WRITE REG-PLANO FROM REG-DETALLE
+             END-READ.
